@@ -2,6 +2,7 @@
 import { program } from 'commander'
 import { init } from './commands/init.js'
 import { start } from './commands/start.js'
+import { worker } from './commands/worker.js'
 
 program
   .name('trooper')
@@ -15,10 +16,15 @@ program
 
 program
   .command('start')
-  .description('Start the Trooper server')
+  .description('Start the Trooper dashboard server')
   .option('-p, --port <number>', 'Port to run on', '3000')
   .option('--db <url>', 'Database URL (default: SQLite)')
   .action(start)
+
+program
+  .command('worker')
+  .description('Start the agent worker (polls queue and runs the AI agent)')
+  .action(worker)
 
 // Running `npx trooper` with no subcommand runs the wizard
 program.action(async () => {

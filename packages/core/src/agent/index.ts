@@ -1,4 +1,4 @@
-import simpleGit from 'simple-git'
+import { simpleGit } from 'simple-git'
 import { Octokit } from '@octokit/rest'
 import path from 'node:path'
 import os from 'node:os'
@@ -239,7 +239,7 @@ ${agentSummary}
 - [ ] Human review required before merge
 
 ---
-*Opened automatically by [Trooper](https://github.com/your-org/trooper). Review carefully before merging.*`
+*Opened automatically by [Trooper](https://github.com/pavandesignwork/trooper). Review carefully before merging.*`
 }
 
 async function audit(ticketId: string, event: string, payload: object) {

@@ -5,23 +5,26 @@
   "description": "Autonomous engineering agent — ingest feedback, write code, open PRs. BYOK.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/trooper"
+    "url": "https://github.com/pavandesignwork/trooper"
   },
   "license": "MIT",
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm -r --parallel dev",
-    "lint": "pnpm -r lint",
+    "lint": "eslint \"packages/*/src/**/*.ts\" --max-warnings 0",
     "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "test": "vitest run",
     "db:generate": "pnpm --filter @trooper/db generate",
     "db:migrate": "pnpm --filter @trooper/db migrate"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.4.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
     "prettier": "^3.2.0",
-    "eslint": "^8.57.0"
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
   },
   "engines": {
     "node": ">=18.0.0",
