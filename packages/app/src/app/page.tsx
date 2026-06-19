@@ -3,102 +3,130 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-export default async function HomePage() {
-  const tickets = await prisma.ticket.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-    include: { iterations: { orderBy: { iterationNumber: 'desc' }, take: 1 } },
-  })
+export default async function OverviewPage() {
+  const [tickets, iterations, recentActivity] = await Promise.all([
+    prisma.ticket.findMany({ select: { status: true, priority: true, createdAt: true } }),
+    prisma.prIteration.findMany({ select: { prNumber: true, outcome: true } }),
+    prisma.auditEntry.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+      include: { ticket: { select: { id: true, title: true } } },
+    }),
+  ])
 
-  const counts = {
-    pending: tickets.filter((t) => t.status === 'PENDING').length,
-    inProgress: tickets.filter((t) => ['PLANNING', 'IN_PROGRESS'].includes(t.status)).length,
-    inReview: tickets.filter((t) => t.status === 'IN_REVIEW').length,
-    merged: tickets.filter((t) => t.status === 'MERGED').length,
+  const stats = {
+    total:       tickets.length,
+    inProgress:  tickets.filter((t) => ['PLANNING', 'IN_PROGRESS'].includes(t.status)).length,
+    inReview:    tickets.filter((t) => t.status === 'IN_REVIEW').length,
+    rework:      tickets.filter((t) => t.status === 'NEEDS_REWORK').length,
+    merged:      tickets.filter((t) => t.status === 'MERGED').length,
+    prsOpened:   iterations.filter((i) => i.prNumber).length,
+    prsApproved: iterations.filter((i) => i.outcome === 'approved').length,
+    critical:    tickets.filter((t) => t.priority === 'CRITICAL').length,
   }
 
   return (
-    <main style={{ maxWidth: 900, margin: '0 auto', padding: '2rem 1rem' }}>
-      <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>Trooper</h1>
-        <p style={{ color: '#888', marginTop: 4 }}>Autonomous engineering agent</p>
-      </header>
+    <div style={{ padding: '36px 44px' }}>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-        {[
-          { label: 'Pending', value: counts.pending, color: '#888' },
-          { label: 'In Progress', value: counts.inProgress, color: '#3b82f6' },
-          { label: 'In Review', value: counts.inReview, color: '#f59e0b' },
-          { label: 'Merged', value: counts.merged, color: '#22c55e' },
-        ].map((stat) => (
-          <div key={stat.label} style={{ background: '#1a1a1a', borderRadius: 8, padding: '1rem' }}>
-            <div style={{ fontSize: '1.75rem', fontWeight: 700, color: stat.color }}>{stat.value}</div>
-            <div style={{ color: '#888', fontSize: '0.875rem' }}>{stat.label}</div>
-          </div>
-        ))}
+      <div style={{ marginBottom: 36 }}>
+        <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 600, color: '#e5e5e5' }}>Overview</h1>
+        <p style={{ margin: 0, fontSize: 16, color: '#4b5563' }}>Autonomous engineering agent — live status</p>
       </div>
 
-      <div style={{ background: '#1a1a1a', borderRadius: 8, overflow: 'hidden' }}>
-        <div style={{ padding: '1rem', borderBottom: '1px solid #2a2a2a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontWeight: 600 }}>Tickets</span>
-          <Link href="/tickets/new" style={{ background: '#3b82f6', color: '#fff', padding: '0.4rem 1rem', borderRadius: 6, textDecoration: 'none', fontSize: '0.875rem' }}>
-            + New ticket
+      {/* Stat cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 44 }}>
+        <StatCard label="Total Tickets"  value={stats.total}      color="#e5e5e5" href="/tickets" />
+        <StatCard label="In Progress"    value={stats.inProgress} color="#2563eb" href="/tickets?status=IN_PROGRESS" />
+        <StatCard label="Waiting Review" value={stats.inReview}   color="#d97706" href="/tickets?status=IN_REVIEW" />
+        <StatCard label="Merged"         value={stats.merged}     color="#16a34a" href="/tickets?status=MERGED" />
+      </div>
+
+      {/* Recent activity */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Recent Activity
+          </span>
+          <Link href="/tickets" style={{ fontSize: 14, color: '#2563eb', textDecoration: 'none' }}>
+            View all tickets →
           </Link>
         </div>
-        {tickets.length === 0 ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: '#888' }}>
-            No tickets yet. Connect a source or create one manually.
-          </div>
-        ) : (
-          tickets.map((ticket) => {
-            const latestPr = ticket.iterations[0]
-            return (
-              <Link key={ticket.id} href={`/tickets/${ticket.id}`} style={{ display: 'block', padding: '1rem', borderBottom: '1px solid #2a2a2a', textDecoration: 'none', color: 'inherit' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', color: '#888', fontFamily: 'monospace' }}>{ticket.id}</span>
-                    <div style={{ marginTop: 2, fontWeight: 500 }}>{ticket.title}</div>
-                    <div style={{ marginTop: 4, fontSize: '0.8rem', color: '#888' }}>
-                      {ticket.source} · {ticket.repoOwner}/{ticket.repoName}
-                      {latestPr?.prUrl && (
-                        <> · <a href={latestPr.prUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ color: '#3b82f6' }}>PR #{latestPr.prNumber}</a></>
-                      )}
-                    </div>
-                  </div>
-                  <StatusBadge status={ticket.status} type={ticket.type} />
-                </div>
-              </Link>
-            )
-          })
-        )}
+
+        <div style={{ background: '#141414', border: '1px solid #1f1f1f', borderRadius: 4, overflow: 'hidden' }}>
+          {recentActivity.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#374151', fontSize: 16 }}>
+              No activity yet.{' '}
+              <Link href="/tickets/new" style={{ color: '#2563eb' }}>Create a ticket</Link> to get started.
+            </div>
+          ) : (
+            recentActivity.map((entry, i) => (
+              <div key={entry.id} style={{
+                display: 'flex', gap: 18, alignItems: 'baseline',
+                padding: '13px 22px',
+                borderBottom: i < recentActivity.length - 1 ? '1px solid #1a1a1a' : 'none',
+              }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 13, color: '#374151', flexShrink: 0, minWidth: 148 }}>
+                  {new Date(entry.createdAt).toISOString().replace('T', ' ').slice(0, 16)}
+                </span>
+                <EventBadge event={entry.event} />
+                <Link
+                  href={`/tickets/${entry.ticket.id}`}
+                  style={{ fontSize: 15, color: '#9ca3af', textDecoration: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}
+                >
+                  {entry.ticket.title}
+                </Link>
+              </div>
+            ))
+          )}
+        </div>
       </div>
-    </main>
+    </div>
   )
 }
 
-function StatusBadge({ status, type }: { status: string; type: string }) {
-  const colors: Record<string, string> = {
-    PENDING: '#888',
-    PLANNING: '#3b82f6',
-    IN_PROGRESS: '#3b82f6',
-    IN_REVIEW: '#f59e0b',
-    NEEDS_REWORK: '#ef4444',
-    MERGED: '#22c55e',
-    CLOSED: '#888',
-  }
-  const typeColors: Record<string, string> = {
-    BUG: '#ef4444',
-    FEATURE: '#8b5cf6',
-    FEEDBACK: '#888',
-  }
-  return (
-    <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-      <span style={{ fontSize: '0.7rem', background: typeColors[type] + '22', color: typeColors[type], padding: '2px 8px', borderRadius: 99, border: `1px solid ${typeColors[type]}44` }}>
-        {type}
-      </span>
-      <span style={{ fontSize: '0.7rem', background: colors[status] + '22', color: colors[status], padding: '2px 8px', borderRadius: 99, border: `1px solid ${colors[status]}44` }}>
-        {status.replace(/_/g, ' ')}
-      </span>
+function StatCard({ label, value, color, href }: { label: string; value: number; color: string; href?: string }) {
+  const content = (
+    <div style={{
+      background: '#141414', border: '1px solid #1f1f1f', borderRadius: 4,
+      padding: '22px 24px',
+    }}>
+      <div style={{ fontSize: 36, fontWeight: 700, color, lineHeight: 1, marginBottom: 10 }}>
+        {value}
+      </div>
+      <div style={{ fontSize: 14, color: '#4b5563', fontWeight: 500 }}>{label}</div>
     </div>
+  )
+
+  if (href) {
+    return <Link href={href} style={{ textDecoration: 'none', display: 'block' }}>{content}</Link>
+  }
+  return content
+}
+
+function EventBadge({ event }: { event: string }) {
+  const colors: Record<string, { bg: string; text: string }> = {
+    'ticket.created':         { bg: '#172554', text: '#60a5fa' },
+    'agent.started':          { bg: '#1e1b4b', text: '#a5b4fc' },
+    'agent.completed':        { bg: '#14532d', text: '#86efac' },
+    'pr.opened':              { bg: '#1c1917', text: '#fbbf24' },
+    'pr.approved':            { bg: '#14532d', text: '#86efac' },
+    'pr.rejected':            { bg: '#450a0a', text: '#fca5a5' },
+    'scheduler.requeue':      { bg: '#1c1917', text: '#d97706' },
+    'agent.smoke_test':       { bg: '#1a1a1a', text: '#6b7280' },
+    'agent.blocked_by_tests': { bg: '#450a0a', text: '#fca5a5' },
+  }
+
+  const meta = colors[event] ?? { bg: '#1a1a1a', text: '#4b5563' }
+  const label = event.replace(/\./g, ' › ')
+
+  return (
+    <span style={{
+      fontSize: 12, fontWeight: 600,
+      color: meta.text, background: meta.bg,
+      padding: '3px 10px', borderRadius: 3, flexShrink: 0,
+      minWidth: 148, textAlign: 'center', display: 'inline-block',
+    }}>
+      {label}
+    </span>
   )
 }
