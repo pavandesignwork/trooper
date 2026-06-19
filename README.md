@@ -137,9 +137,10 @@ pnpm dev
 ```
 
 ### Option C — Production (PostgreSQL + persistent worker)
+
+Change `provider = "sqlite"` to `provider = "postgresql"` in `packages/db/prisma/schema.prisma`, then:
 ```bash
 # .env
-DATABASE_PROVIDER=postgresql
 DATABASE_URL=postgresql://user:pass@host:5432/trooper
 ```
 
@@ -156,8 +157,7 @@ DATABASE_URL=postgresql://user:pass@host:5432/trooper
 | `TROOPER_REPO_OWNER` | Yes | — | Default GitHub org/user |
 | `TROOPER_REPO_NAME` | Yes | — | Default repo name |
 | `TROOPER_WEBHOOK_SECRET` | No | — | Secret header for webhook authentication |
-| `DATABASE_PROVIDER` | No | `sqlite` | `sqlite` or `postgresql` |
-| `DATABASE_URL` | No | `file:./trooper.db` | Database connection string |
+| `DATABASE_URL` | No | `file:./trooper.db` | SQLite path or PostgreSQL connection string |
 | `PORT` | No | `3000` | Dashboard port |
 
 ---
