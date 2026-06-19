@@ -101,7 +101,7 @@ Trooper never touches your API key — it goes directly from your `.env` to the 
 
 | Provider | Models | Cost |
 |---|---|---|
-| **Claude** (default) | `claude-sonnet-4-6`, `claude-opus-4-8`, `claude-haiku-4-5` | ~$0.06–0.90/ticket |
+| **Claude** (default) | `claude-sonnet-4-6`, `claude-opus-4-8`, `claude-haiku-4-5-20251001` | ~$0.06–0.90/ticket |
 | **OpenAI** | `gpt-4o`, `gpt-4o-mini` | ~$0.05–0.80/ticket |
 | **Google Gemini** | `gemini-1.5-pro`, `gemini-1.5-flash` | ~$0.03–0.60/ticket |
 | **Groq** | `llama-3.1-70b-versatile` | ~$0.01–0.10/ticket |

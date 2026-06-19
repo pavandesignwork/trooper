@@ -14,7 +14,7 @@ const modelConfig: ModelConfig = {
   apiKey: process.env.TROOPER_API_KEY,
 }
 
-const githubToken = process.env.TROOPER_GITHUB_TOKEN!
+const githubToken = process.env.TROOPER_GITHUB_TOKEN
 
 if (!githubToken) {
   console.error('[worker] TROOPER_GITHUB_TOKEN is required')
@@ -28,7 +28,7 @@ async function processNext(): Promise<void> {
   console.log(`[worker] processing job ${job.id} for ticket ${job.ticketId}`)
 
   try {
-    await runAgent({ ticketId: job.ticketId, modelConfig, githubToken })
+    await runAgent({ ticketId: job.ticketId, modelConfig, githubToken: githubToken as string })
     await completeJob(job.id)
     console.log(`[worker] job ${job.id} completed`)
   } catch (err: any) {

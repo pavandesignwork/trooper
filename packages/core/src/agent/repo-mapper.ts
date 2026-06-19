@@ -9,10 +9,6 @@ export interface RepoMap {
   language: string      // primary language
   frameworks: string[]  // detected frameworks
 }
-
-// Called before the agent writes any code.
-// Borrowed from gbrain repo-architecture: understand structure first, file by subject not by format.
-// Here: understand repo layout, entry points, and test runner before planning changes.
 export async function mapRepo(workDir: string): Promise<RepoMap> {
   const tree = await buildTree(workDir, 0, 3)
 

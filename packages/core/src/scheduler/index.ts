@@ -1,14 +1,5 @@
 import { prisma } from '@trooper/db'
 
-// Borrowed from gbrain cron-scheduler:
-// - "max 1 job per 5-minute slot, no collisions"
-// - idempotent: "running the same job twice produces the same result"
-// - "thin job prompts" — scheduler just re-queues, agent does the work
-// - quiet hours respected (no agent runs at 2am by default)
-//
-// Adapted for Trooper: re-queue PENDING tickets that have been waiting too long,
-// and detect NEEDS_REWORK tickets that haven't been retried.
-
 export interface SchedulerOptions {
   stalePendingMinutes?: number  // re-queue after N minutes pending (default: 30)
   quietHoursStart?: number      // hour to stop scheduling (default: 23)

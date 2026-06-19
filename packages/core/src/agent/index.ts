@@ -42,7 +42,8 @@ export async function runAgent(options: AgentRunOptions): Promise<void> {
   const git = simpleGit(workDir)
   await git.clone(
     `https://x-access-token:${githubToken}@github.com/${ticket.repoOwner}/${ticket.repoName}.git`,
-    workDir
+    workDir,
+    ['--depth=1']
   )
   const branchName = `trooper/${ticketId}/v${iterationNumber}`
   await git.checkoutLocalBranch(branchName)

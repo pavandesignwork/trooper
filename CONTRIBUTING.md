@@ -63,7 +63,7 @@ pnpm dev            # start the Next.js dashboard
 
 In a second terminal:
 ```bash
-node packages/core/src/worker.ts   # start the agent worker
+npx usetrooper worker   # start the agent worker
 ```
 
 Dashboard → `http://localhost:3000`

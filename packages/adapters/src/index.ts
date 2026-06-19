@@ -24,9 +24,8 @@ export function getAdapter(name: string): AdapterPlugin | undefined {
   return registry.get(name)
 }
 
-// Ingest a raw payload from any registered source, dedup, and create a ticket.
-// Failed transformations go to dead-letter queue — never silently dropped.
-// Payloads are sanitized before processing (gbrain webhook-transforms pattern).
+// Ingest a raw payload from any registered source, dedup, and persist a ticket.
+// Failed transformations go to the dead-letter queue — never silently dropped.
 export async function ingest(
   source: string,
   rawPayload: unknown,

@@ -1,11 +1,3 @@
-// Borrowed from gbrain signal-detector:
-// "captures original thinking and entity mentions with equal priority"
-// "operates continuously on inbound signals"
-// "ideas are intellectual capital, entities are bookkeeping"
-//
-// Adapted for Trooper: instead of capturing ideas for a knowledge graph,
-// we score incoming tickets for priority so the agent queue is ordered smartly.
-
 export type TicketPriority = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW'
 
 export interface TriageResult {

@@ -3,16 +3,6 @@ import { execSync } from 'node:child_process'
 export type SmokeTestResult =
   | { passed: true }
   | { passed: false; failures: string[]; output: string }
-
-// Borrowed from gbrain smoke-test:
-// - test-first: never fix without confirming broken
-// - re-test after fix attempt
-// - timeout everything that could hang
-// - exit code = number of unfixed failures
-// - idempotent: safe to run repeatedly
-//
-// Here: the agent runs this AFTER writing code, BEFORE opening a PR.
-// If tests fail, the agent gets one auto-fix attempt before the PR is blocked.
 export async function runSmokeTest(
   workDir: string,
   testCommand: string
