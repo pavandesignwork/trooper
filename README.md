@@ -7,7 +7,7 @@ Trooper connects to your feedback sources (GitHub Issues, webhooks, forms), turn
 Zero infrastructure required. Bring your own AI key.
 
 ```bash
-npx trooper
+npx @pavanrajbhar/trooper
 ```
 
 ---
