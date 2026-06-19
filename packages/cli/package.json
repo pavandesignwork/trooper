@@ -1,5 +1,5 @@
 {
-  "name": "trooper",
+  "name": "@pavanrajbhar/trooper",
   "version": "0.1.0",
   "description": "Autonomous engineering agent — ingest feedback, write code, open PRs. BYOK.",
   "keywords": ["ai", "agent", "autonomous", "engineering", "byok", "github", "code-review"],
