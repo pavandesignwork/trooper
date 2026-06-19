@@ -39,7 +39,7 @@ Be respectful. Critique code, not people. We welcome contributors of all experie
 **Requirements:** Node.js 18+, pnpm 8+
 
 ```bash
-git clone https://github.com/your-org/trooper
+git clone https://github.com/pavandesignwork/trooper
 cd trooper
 pnpm install
 cp .env.example .env
@@ -75,7 +75,7 @@ Dashboard → `http://localhost:3000`
 ```
 trooper/
 ├── packages/
-│   ├── cli/        npx trooper — setup wizard and start commands
+│   ├── cli/        npx usetrooper — setup wizard and start commands
 │   ├── app/        Next.js dashboard and API routes
 │   ├── core/       Agent engine, model router, job queue, scheduler
 │   │   └── src/
@@ -95,7 +95,7 @@ trooper/
 
 ## What to work on
 
-Good first issues are labelled [`good first issue`](https://github.com/your-org/trooper/issues?q=label%3A%22good+first+issue%22).
+Good first issues are labelled [`good first issue`](https://github.com/pavandesignwork/trooper/issues?q=label%3A%22good+first+issue%22).
 
 **High-value contributions:**
 

@@ -1,5 +1,9 @@
 # Trooper
 
+[![npm](https://img.shields.io/npm/v/usetrooper?color=blue)](https://www.npmjs.com/package/usetrooper)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![CI](https://github.com/pavandesignwork/trooper/actions/workflows/ci.yml/badge.svg)](https://github.com/pavandesignwork/trooper/actions/workflows/ci.yml)
+
 **Autonomous engineering agent — ingest feedback, write code, open PRs.**
 
 Trooper connects to your feedback sources (GitHub Issues, webhooks, forms), turns them into tracked tickets, writes the code fix or feature using an AI agent, and opens a PR for your team to review. If the PR is rejected, the agent reads the feedback and tries again.
@@ -38,7 +42,7 @@ Bug report / feature request / feedback
 
 ```bash
 # Run the setup wizard
-npx trooper
+npx usetrooper
 
 # Answer 5 questions:
 # · Which AI model? (Claude / OpenAI / Gemini / Groq / Ollama)
@@ -48,10 +52,10 @@ npx trooper
 # · Port (default 3000)
 
 # Start the dashboard
-npx trooper start
+npx usetrooper start
 
 # In a second terminal, start the agent worker
-npx trooper worker
+npx usetrooper worker
 ```
 
 Dashboard → `http://localhost:3000`
@@ -116,15 +120,15 @@ TROOPER_MODEL_NAME=codellama
 
 ### Option A — Persistent install
 ```bash
-npm install -g trooper
-trooper init
-trooper start   # app
-trooper worker  # agent worker (separate terminal)
+npm install -g usetrooper
+usetrooper init
+usetrooper start   # app
+usetrooper worker  # agent worker (separate terminal)
 ```
 
 ### Option B — From source
 ```bash
-git clone https://github.com/your-org/trooper
+git clone https://github.com/pavandesignwork/trooper
 cd trooper
 pnpm install
 cp .env.example .env   # fill in your keys
@@ -169,7 +173,6 @@ export class LinearAdapter implements AdapterPlugin {
   readonly name = 'linear'
 
   async parse(payload: unknown, headers: Record<string, string>): Promise<FeedbackEvent | null> {
-    // normalize Linear webhook payload → FeedbackEvent
     const p = payload as Record<string, unknown>
     if (p.type !== 'Issue') return null
     return {
@@ -191,7 +194,7 @@ import { LinearAdapter } from './linear/index.js'
 registerAdapter(new LinearAdapter())
 ```
 
-That's it — no changes needed anywhere else.
+That's it — no changes needed anywhere else. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ---
 
@@ -203,14 +206,14 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ---
 
-## License
-
-MIT — see [LICENSE](LICENSE).
-
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Issues and PRs are welcome — check the [good first issues](https://github.com/pavandesignwork/trooper/issues?q=label%3A%22good+first+issue%22) label to get started.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md).
+See [SECURITY.md](SECURITY.md). Report vulnerabilities privately — do not open a public issue.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
