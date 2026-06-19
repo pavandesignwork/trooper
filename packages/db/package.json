@@ -1,0 +1,21 @@
+{
+  "name": "@trooper/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "migrate:prod": "prisma migrate deploy",
+    "studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.14.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.14.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

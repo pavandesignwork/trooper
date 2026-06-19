@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = env("DATABASE_PROVIDER") // "sqlite" | "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Ticket ──────────────────────────────────────────────────────────────────
+
+model Ticket {
+  id          String       @id @default(cuid())
+  type        TicketType
+  status      TicketStatus @default(PENDING)
+  title       String
+  body        String
+  source      String       // "github" | "slack" | "webhook" | "form"
+  sourceRef   String?      // external ID from the source (e.g. GitHub issue number)
+  repoOwner   String
+  repoName    String
+  metadata    String?      // JSON blob for adapter-specific data
+  priority    TicketPriority @default(NORMAL)
+  priorityScore Int          @default(50)
+
+  iterations  PrIteration[]
+  auditLog    AuditEntry[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum TicketType {
+  BUG
+  FEATURE
+  FEEDBACK
+}
+
+enum TicketPriority {
+  CRITICAL
+  HIGH
+  NORMAL
+  LOW
+}
+
+enum TicketStatus {
+  PENDING         // waiting for agent to pick up
+  PLANNING        // agent is reading codebase + scoping
+  IN_PROGRESS     // agent writing code
+  IN_REVIEW       // PR open, waiting for human
+  NEEDS_REWORK    // PR rejected, back to agent
+  MERGED          // approved and merged
+  CLOSED          // won't fix / duplicate
+}
+
+// ─── PR Iterations ───────────────────────────────────────────────────────────
+
+model PrIteration {
+  id              String   @id @default(cuid())
+  ticketId        String
+  ticket          Ticket   @relation(fields: [ticketId], references: [id])
+  iterationNumber Int      // 1, 2, 3... (increments on each rejection)
+  prNumber        Int?     // GitHub PR number
+  prUrl           String?
+  branchName      String
+  agentPlan       String   // what the agent planned to do
+  agentReasoning  String?  // agent's self-review trace
+  reviewFeedback  String?  // rejection comments from the engineer
+  outcome         String?  // "approved" | "rejected"
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ─── Audit Log ───────────────────────────────────────────────────────────────
+
+model AuditEntry {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  event     String   // e.g. "ticket.created", "agent.started", "pr.opened", "pr.rejected"
+  payload   String?  // JSON
+  createdAt DateTime @default(now())
+}
+
+// ─── Job Queue ───────────────────────────────────────────────────────────────
+
+model Job {
+  id          String    @id @default(cuid())
+  ticketId    String
+  status      JobStatus @default(PENDING)
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  error       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, createdAt])
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  DONE
+  FAILED
+}
+
+// ─── Config ──────────────────────────────────────────────────────────────────
+
+model Config {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
